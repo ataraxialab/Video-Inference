@@ -53,9 +53,9 @@ def _cvsecs(time):
 		finds = re.findall(expr, time)[0]
 		nums = list(map(float, finds))
 		return (3600 * int(finds[0]) +
-		        60 * int(finds[1]) +
-		        int(finds[2]) +
-		        nums[3] / (10 ** len(finds[3])))
+				60 * int(finds[1]) +
+				int(finds[2]) +
+				nums[3] / (10 ** len(finds[3])))
 
 	elif isinstance(time, tuple):
 		if len(time) == 3:
@@ -70,7 +70,7 @@ def _cvsecs(time):
 
 class Video(object):
 	def __init__(self, filename, start=None, end=None, step=None,
-	             ffmpeg='ffmpeg', verbose=False, frame_group_len=1):
+				 ffmpeg='ffmpeg', verbose=False, frame_group_len=1):
 		"""
 		Parameters
 		----------
@@ -170,9 +170,9 @@ class Video(object):
 			cmd += ["-f", "null", "/dev/null"]
 
 		popen_params = {"bufsize": 10 ** 5,
-		                "stdout": sp.PIPE,
-		                "stderr": sp.PIPE,
-		                "stdin": DEVNULL}
+						"stdout": sp.PIPE,
+						"stderr": sp.PIPE,
+						"stdin": DEVNULL}
 
 		if os.name == "nt":
 			popen_params["creationflags"] = 0x08000000
@@ -214,7 +214,7 @@ class Video(object):
 
 		# get the output line that speaks about video
 		lines_video = [l for l in lines
-		               if ' Video: ' in l and re.search('\d+x\d+', l)]
+					   if ' Video: ' in l and re.search('\d+x\d+', l)]
 
 		result['video_found'] = lines_video != []
 
@@ -286,8 +286,8 @@ class Video(object):
 		if t != 0:
 			offset = min(1, t)
 			i_arg = ['-ss', "%.06f" % (t - offset),
-			         '-i', self.filename,
-			         '-ss', "%.06f" % offset]
+					 '-i', self.filename,
+					 '-ss', "%.06f" % offset]
 		else:
 			i_arg = ['-i', self.filename]
 
@@ -297,9 +297,9 @@ class Video(object):
 			 '-pix_fmt', self._pix_fmt, '-vcodec', 'rawvideo', '-'])
 
 		popen_params = {"bufsize": self._bufsize,
-		                "stdout": sp.PIPE,
-		                "stderr": sp.PIPE,
-		                "stdin": DEVNULL}
+						"stdout": sp.PIPE,
+						"stderr": sp.PIPE,
+						"stdin": DEVNULL}
 
 		if os.name == "nt":
 			popen_params["creationflags"] = 0x08000000
@@ -374,9 +374,9 @@ class Video(object):
 		generator = np.arange(self.start, self.end, self.step)
 		if self.verbose:
 			generator = tqdm(iterable=generator,
-			                 total=(self.end - self.start) / self.step,
-			                 leave=True, mininterval=1.,
-			                 unit='frames', unit_scale=True)
+							 total=(self.end - self.start) / self.step,
+							 leave=True, mininterval=1.,
+							 unit='frames', unit_scale=True)
 
 		for t in generator:
 
@@ -440,3 +440,13 @@ class Video(object):
 		self._close()
 		if hasattr(self, '_lastread'):
 			del self._lastread
+
+
+if __name__ == '__main__':
+
+	filename = "test.avi"
+	video = Video(filename, frame_group_len=10)
+	for time_stamps, frames in video:
+		print(time_stamps)
+		print(len(frames))
+		break
