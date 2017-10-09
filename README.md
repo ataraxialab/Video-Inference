@@ -1,11 +1,11 @@
 # 视频分类inference API （v1）
 ## 0. 技术方案
-输入：input video   
--> 截帧（ffmpeg）;
--> 特征提取（SENet）;
--> 多帧特征融合（NetVLAD）;    
--> 多帧分类（FC）;    
--> 后处理.    
+输入：input video          
+-> 截帧（ffmpeg）    
+-> 特征提取（SENet）    
+-> 多帧特征融合（NetVLAD）         
+-> 多帧分类（FC)     
+-> 后处理       
 输出：视频的多个分类标签，及其分别所处的开始时间和结束时间
 
 ## 1. 截帧
