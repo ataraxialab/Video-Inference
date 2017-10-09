@@ -70,7 +70,7 @@ def _cvsecs(time):
 
 class Video(object):
 	def __init__(self, filename, start=None, end=None, step=None,
-	             ffmpeg='ffmpeg', verbose=False):
+	             ffmpeg='ffmpeg', verbose=False, frame_group_len=1):
 		"""
 		Parameters
 		----------
@@ -87,6 +87,8 @@ class Video(object):
 			Show a progress bar while iterating the video. Defaults to False.
 		ffmpeg : str, optional
 			Path to ffmpeg command line tool. Defaults to "ffmpeg".
+		frame_group_len : int
+			Number of frames to be grouped as an output. Defaults to 1.
 		"""
 
 		self.filename = filename
@@ -104,6 +106,7 @@ class Video(object):
 		self.start = 0. if start is None else start
 		self.end = self._duration if end is None else end
 		self.step = 1. / self._fps if step is None else step
+		self.frame_group_len = frame_group_len
 
 		# TODO warning if step != N x 1/fps (where N is an integer)
 		# warnings.warn(message, UserWarning)
@@ -354,7 +357,7 @@ class Video(object):
 	def __iter__(self):
 		return self.iterframes(with_time=True)
 
-	def iterframes(self, with_time=False, frame_group_len=1):
+	def iterframes(self, with_time=False):
 		"""Iterate over video frames
 		Frames are generated as H x W x 3 numpy array in RGB order (not BGR).
 		(FYI, OpenCV standard format is BGR, not RGB).
@@ -362,13 +365,11 @@ class Video(object):
 		----------
 		with_time : boolean
 			When True, yields (time, frame).
-		frame_group_len : int
-			Number of contextual frames. Defaults to 1.
 		"""
 
 		# initialize buffer of contextual frames
-		frames = deque([], frame_group_len)
-		timestamps = deque([], frame_group_len)
+		frames = deque([], self.frame_group_len)
+		timestamps = deque([], self.frame_group_len)
 
 		generator = np.arange(self.start, self.end, self.step)
 		if self.verbose:
@@ -384,7 +385,7 @@ class Video(object):
 			# fill buffer of contextual frames
 			frames.append(rgb)
 			timestamps.append(t)
-			if len(frames) < frame_group_len:
+			if len(frames) < self.frame_group_len:
 				continue
 
 			f_ = frames
