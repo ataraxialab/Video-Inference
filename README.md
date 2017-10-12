@@ -33,29 +33,25 @@
 1. 起一个caffe的容器。在k8s上image设置为`reg-xs.qiniu.io/atlab/atnet-caffe-trainer:20170714v1`
 2. 进入容器以后，安装下列依赖项：
 
-	```
-apt-get update
-apt-get install ffmpeg
-pip install  tqdm
-	```
+  apt-get update
+  apt-get install ffmpeg
+  pip install  tqdm
 
 3. 重新编译caffe：
 下载senet版caffe：（链接问我要）。
 解压到/opt/caffe/目录下（将目录下原有的caffe删除）
 然后就是正常caffe的编译流程了：
 
-	```
-mkdir build
-cd build
-cmake ..
-make all
-make install
-	```
+  mkdir build
+  cd build
+  cmake ..
+  make all
+  make install
+
 4. 开始使用截帧api：
 `video.py`是截帧api的主要脚本，可以仿造main函数设置filename运行即可。
 对video可设置的选项：
 
-	```
 	start : float, optional
 			Begin iterating frames at time `start` (in seconds).
 			Defaults to 0.
@@ -69,7 +65,6 @@ make install
 			Show a progress bar while iterating the video. Defaults to False.
 	frame_group_len : int
 			Number of frames to be grouped as an output. Defaults to 1.
-	```
 
 5. 开始使用特征提取api:
 `featureExtract.py`是特征提取api的主要脚本，它也利用了截帧api。可以仿造main函数设置filename进行运行。
