@@ -67,7 +67,7 @@ class FeatureExtraction(object):
 
 if __name__ == "__main__":
     filename = "test.avi"
-    video = Video(filename, frame_group_len=2)
+    video = Video(filename, frame_group_len=1)
     features = FeatureExtraction(video, modelPrototxt='./models/SENet.prototxt', modelFile='./models/SENet.caffemodel',
                  featureLayer='pool5/7x7_s1', gpu_id=0)
     for fea in features():

@@ -449,4 +449,7 @@ if __name__ == '__main__':
 	for time_stamps, frames in video:
 		print(time_stamps)
 		print(len(frames))
+		for idx, frame in enumerate(frames):
+			bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+			cv2.imwrite(str(idx)+'.jpg',bgr)
 		break
