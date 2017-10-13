@@ -1,4 +1,78 @@
 # 视频分类inference API （v1）
+## Demo
+环境配置见下文。配置完成后运行如下代码，可生成视频分类结果的视频。
+
+```
+python demo.py --composite_video
+```
+
+## 环境配置
+1. 起一个mxnet的容器。
+2. 进入容器以后，安装下列依赖项：
+  ```
+  apt-get update
+  apt-get install ffmpeg libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler
+  pip install  tqdm
+apt-get install --no-install-recommends libboost-all-dev
+pip install protobuf
+apt-get install cython python-skimage python-pip
+  ```
+
+3.下载senet版caffe（链接问我要）,	并编译：
+  ```
+  cd $CAFFE_ROOT
+  mkdir build
+  cd build
+  cmake ..
+  make all
+  make install
+  ```
+
+4. 开始使用:    
+下载一个测试视频（test.avi），下载senet模型和netvlad模型放到models/目录下（链接问我要）。    
+然后运行如下代码，可生成视频分类结果的视频：
+```
+python demo.py --video_path test.avi --composite_video
+```
+
+## API Details
+1. 截帧api：      
+`video.py`是截帧api的主要脚本，运行：
+```
+python video.py
+```
+对video可设置的选项：
+  ```
+	start : float, optional
+			Begin iterating frames at time `start` (in seconds).
+			Defaults to 0.
+	end : float, optional
+			Stop iterating frames at time `end` (in seconds).
+			Defaults to video duration.
+	step : float, optional
+			Iterate frames every `step` seconds.
+			Defaults to iterating every frame.
+	verbose : bool, optional
+			Show a progress bar while iterating the video. Defaults to False.
+	frame_group_len : int
+			Number of frames to be grouped as an output. Defaults to 1.
+  ```
+
+2. 特征提取api:    
+`featureExtract.py`是特征提取api的主要脚本，它也利用了截帧api。目前支持的特征是SENet。运行：
+```
+python featureExtract.py
+```
+```
+注意:video中设置的frame_group_len需要和model/SENet.prototxt中的batchsize保持一致，否则会报错。
+```
+
+3. 特征融合和多帧分类api：    
+`featureCoding.py`是特征融合和多帧分类api的主要脚本，它也利用了截帧api和特征提取api。目前支持的特征融合方法是NetVLAD.运行：
+```
+python featureCoding.py
+```
+
 ## 技术方案
 ```
 输入：input video
@@ -28,47 +102,3 @@
 
 ### 5. 后处理
 将分类结果做一个整合，输出视频的多个分类标签，及其分别所处的开始时间和结束时间。
-
-## 使用姿势 （截帧+特征提取）
-1. 起一个caffe的容器。在k8s上image设置为`reg-xs.qiniu.io/atlab/atnet-caffe-trainer:20170714v1`
-2. 进入容器以后，安装下列依赖项：
-  ```
-  apt-get update
-  apt-get install ffmpeg
-  pip install  tqdm
-  ```
-
-3. 重新编译caffe：
-下载senet版caffe：（链接问我要）。
-解压到/opt/caffe/目录下（将目录下原有的caffe删除）
-然后就是正常caffe的编译流程了：
-  ```
-  mkdir build
-  cd build
-  cmake ..
-  make all
-  make install
-  ```
-
-4. 开始使用截帧api：
-`video.py`是截帧api的主要脚本，可以仿造main函数设置filename运行即可。
-对video可设置的选项：
-  ```
-	start : float, optional
-			Begin iterating frames at time `start` (in seconds).
-			Defaults to 0.
-	end : float, optional
-			Stop iterating frames at time `end` (in seconds).
-			Defaults to video duration.
-	step : float, optional
-			Iterate frames every `step` seconds.
-			Defaults to iterating every frame.
-	verbose : bool, optional
-			Show a progress bar while iterating the video. Defaults to False.
-	frame_group_len : int
-			Number of frames to be grouped as an output. Defaults to 1.
-  ```
- 
-5. 开始使用特征提取api:
-`featureExtract.py`是特征提取api的主要脚本，它也利用了截帧api。可以仿造main函数设置filename进行运行。
-目前支持的特征是SENet（模型问我要，然后放到model/目录下）。需要注意的是video中设置的frame\_group\_len需要和model/SENet.prototxt中的batchsize一致，否则会报错。

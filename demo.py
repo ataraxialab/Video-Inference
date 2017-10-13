@@ -14,6 +14,7 @@ def parse_args():
 	parser.add_argument('--gpu_id', help='which gpu to use', default=0, type=int)
 	parser.add_argument('--composite_video', help='composite a new video with video inference result.', action='store_true')
 	parser.add_argument('--composite_video_name', help='new video name', default='newvideo.mp4', type=str)
+	parser.add_argument('--display_score_thresh', help='label prob higher than the thresh can be displayed', default=0.1, type=float)
 
 
 	args = parser.parse_args()
@@ -39,7 +40,8 @@ if __name__ == '__main__':
 		texts = []
 		for label,prob in classification_result.items():
 			text = "{0}:{1:0.2f}%".format(label,prob*100)
-			texts.append(text)
+			if prob > args.display_score_thresh:
+				texts.append(text)
 			print text
 		print "--"*10
 		t1 = time.time()
