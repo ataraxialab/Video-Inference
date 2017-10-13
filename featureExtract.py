@@ -31,10 +31,9 @@ class FeatureExtraction(object):
         self.height = data_shape[2]
         self.width = data_shape[3]
         if self.video.frame_group_len != data_shape[0]:
-            """
             raise IOError(
-					("FeatureExtraction error: video frame group len (%d) is not equal to prototxt batchsize (%d)"
-					 % (self.video.frame_group_len, self.batchsize)))
+                    ("FeatureExtraction error: video frame group len (%d) is not equal to prototxt batchsize (%d)"
+                     % (self.video.frame_group_len, self.batchsize)))
             """
             warnings.warn(
                 "FeatureExtractionWarning: "
@@ -43,6 +42,7 @@ class FeatureExtraction(object):
                 "Change prototxt batchsize to video frame group len.",
                 UserWarning)
             data_shape[0] = self.video.frame_group_len
+            """
 
         self.batchsize = data_shape[0]
         self.featureLayer = featureLayer

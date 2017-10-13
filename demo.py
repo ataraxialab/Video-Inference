@@ -13,6 +13,8 @@ def parse_args():
 	parser.add_argument('--frame_group', help='number of frames to be grouped as one classification input', default=1, type=int)
 	parser.add_argument('--gpu_id', help='which gpu to use', default=0, type=int)
 	parser.add_argument('--composite_video', help='composite a new video with video inference result.', action='store_true')
+	parser.add_argument('--composite_video_name', help='new video name', default='newvideo.mp4', type=str)
+
 
 	args = parser.parse_args()
 	return args
@@ -28,7 +30,7 @@ if __name__ == '__main__':
 	featurecoding = FeatureCoding(featureDim=512, batchsize=args.frame_group, modelPrefix='models/netvlad', modelEpoch=50, synset='lsvc_class_index.txt', gpu_id=0)
 
 	if args.composite_video:
-		newvideo = Composite_Video(videoname="newvideo.avi", fps = video._fps, framesize = video._size)
+		newvideo = Composite_Video(videoname=args.composite_video_name, fps = 1. /video.step, framesize = video._size)
 
 	t1 = time.time()
 	for timestamps, frames, classification_result in featurecoding(feature_extract, topN=5):
@@ -46,6 +48,7 @@ if __name__ == '__main__':
 			newvideo._add_frame(frames, texts)
 
 	if args.composite_video:
+		print "generating new video ..."
 		newvideo._composite_video()
-		print newvideo.video_name + "is generated."
+		print args.composite_video_name + " is generated."
 

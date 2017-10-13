@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import subprocess
 import shutil
+import os
 
 def center_crop_images(images, crop_dims):
     """
@@ -39,19 +40,21 @@ def center_crop_images(images, crop_dims):
 class Composite_Video(object):
     def __init__(self, videoname , fps , framesize, ffmpeg='ffmpeg'):
         self.ffmpeg = ffmpeg
+        if not os.path.exists('tmp/'):
+            os.mkdir('tmp')
         self._img_prefix = "tmp/comp_img%d.jpg"
         self._img_idx = 0
         self._video_name = videoname
         self._font = cv2.FONT_HERSHEY_SIMPLEX
-        self._fontScale = 2
+        self._fontScale = 0.4
         self._fontThickness = 1
-        self._fontColor = (255, 255, 255)
-        textsize = cv2.getTextSize("test", self.font, self.fontScale, self.fontThickness)[0]
+        self._fontColor = (0,0,0)
+        textsize = cv2.getTextSize("test", self._font, self._fontScale, self._fontThickness)[0]
         self._text_height = textsize[1]
         self._text_line_gap = 5
         self._fps = fps
         self._width, self._height = framesize
-        self._text_bottom_left_corner = (10, self.height - 10)
+        self._text_bottom_left_corner = (10, self._height - 10)
 
     def _draw_text(self, image, text_list):
         """Draws texts to a given image.
@@ -59,7 +62,7 @@ class Composite_Video(object):
         """
         im = image.copy()
         current_x, current_y= self._text_bottom_left_corner
-        for i in range(len(text_list),-1,-1):
+        for i in range(len(text_list)-1,-1,-1):
             current_y = current_y - self._text_height
             text_top_left = (current_x, current_y)
             cv2.putText(im, text_list[i],
@@ -76,11 +79,11 @@ class Composite_Video(object):
         for frame in frames:
             bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             img_with_text = self._draw_text(bgr, text_list)
-            cv2.imwrite(self._img_prefix.format(self.img_idx), img_with_text)
+            cv2.imwrite(self._img_prefix.format(self._img_idx), img_with_text)
             self._img_idx += 1
 
     def _composite_video(self, del_frames = True):
-        cmd = [self.ffmpeg, "-framerate", self._fps,
+        cmd = [self.ffmpeg, "-framerate", str(self._fps),
                "-i", self._img_prefix,
                self._video_name]
         subprocess.call(cmd)
