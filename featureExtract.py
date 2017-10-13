@@ -3,7 +3,7 @@ import caffe
 from video import Video
 from utils import center_crop_images
 import skimage
-import cv2
+import warnings
 
 
 class FeatureExtraction(object):
@@ -13,8 +13,8 @@ class FeatureExtraction(object):
     Parameters
     -----------------
     video: Video
-    modelPrototxt: model architecture file
-    modelFile: model snapshot
+    modelPrototxt: models architecture file
+    modelFile: models snapshot
     featureLayer: which layer to be extracted as feature
     gpu_id: which gpu to use
     """
@@ -30,11 +30,21 @@ class FeatureExtraction(object):
         data_shape = self.net.blobs['data'].data.shape
         self.height = data_shape[2]
         self.width = data_shape[3]
-        self.batchsize = data_shape[0]
-        if self.video.frame_group_len != self.batchsize:
+        if self.video.frame_group_len != data_shape[0]:
+            """
             raise IOError(
 					("FeatureExtraction error: video frame group len (%d) is not equal to prototxt batchsize (%d)"
 					 % (self.video.frame_group_len, self.batchsize)))
+            """
+            warnings.warn(
+                "FeatureExtractionWarning: "
+                "video frame group len (%d) " % (self.video.frame_group_len) +
+                "is not equal to prototxt batchsize (%d)" % (data_shape[0]) +
+                "Change prototxt batchsize to video frame group len.",
+                UserWarning)
+            data_shape[0] = self.video.frame_group_len
+
+        self.batchsize = data_shape[0]
         self.featureLayer = featureLayer
         featureDim = self.net.blobs[featureLayer].data.shape
         print "featureDim:", featureDim
@@ -62,7 +72,7 @@ class FeatureExtraction(object):
             self.net.forward()
             features = self.net.blobs[self.featureLayer].data[...].reshape(self.batchsize, -1)
 
-            yield features
+            yield timestamps, frames, features
 
 
 if __name__ == "__main__":
@@ -70,7 +80,7 @@ if __name__ == "__main__":
     video = Video(filename, frame_group_len=1)
     features = FeatureExtraction(video, modelPrototxt='./models/SENet.prototxt', modelFile='./models/SENet.caffemodel',
                  featureLayer='pool5/7x7_s1', gpu_id=0)
-    for fea in features():
+    for timestamps, frames, fea in features():
         print fea.shape
         print fea
         break

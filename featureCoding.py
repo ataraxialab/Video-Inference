@@ -1,7 +1,7 @@
 from featureExtract import FeatureExtraction
 import mxnet as mx
 import numpy as np
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 Batch = namedtuple('Batch', ['data'])
 
 
@@ -33,7 +33,7 @@ class FeatureCoding(object):
 		self.labels = labels
 
 	def __call__(self, feature_extraction, topN = 5):
-		for batch_timestamps, extracted_batch_feature in feature_extraction():
+		for batch_timestamps, batch_frames, extracted_batch_feature in feature_extraction():
 			feature = extracted_batch_feature.reshape(1,self.batchsize,-1)
 			if feature.shape[-1] != self.featureDim:
 				feature = self._cut_feature(feature)
@@ -42,11 +42,11 @@ class FeatureCoding(object):
 			prob = self.mod.get_outputs()[0].asnumpy()
 			prob = np.squeeze(prob)
 			sorted_idx = np.argsort(prob)[::-1]
-			topN_result = dict()
+			topN_result = OrderedDict()
 			for i in sorted_idx[0:topN]:
 				topN_result[self.labels[i]] = prob[i]
 
-			yield batch_timestamps, topN_result
+			yield batch_timestamps, batch_frames, topN_result
 
 
 	def _cut_feature(self, source_fea):
@@ -70,17 +70,19 @@ if __name__ == '__main__':
 	import time
 
 	filename = "test.avi"
-	video = Video(filename, frame_group_len=1)
+	frame_group = 5
+	video = Video(filename, step=1, frame_group_len=frame_group)
 	feature_extract = FeatureExtraction(video, modelPrototxt='./models/SENet.prototxt', modelFile='./models/SENet.caffemodel',
 	                             featureLayer='pool5/7x7_s1', gpu_id=0)
-	featurecoding = FeatureCoding(featureDim=512, batchsize=1, modelPrefix='models/netvlad', modelEpoch=50, synset='lsvc_class_index.txt', gpu_id=0)
+	featurecoding = FeatureCoding(featureDim=512, batchsize=frame_group, modelPrefix='models/netvlad', modelEpoch=50, synset='lsvc_class_index.txt', gpu_id=0)
 
 	t1 = time.time()
-	for timestamps, classification_result in featurecoding(feature_extract, topN=5):
+	for timestamps, _, classification_result in featurecoding(feature_extract, topN=5):
 		t2 = time.time()
 		print "time cost: %f, results in timeduration:(%f~%f)s\n"%(t2-t1,timestamps[0],timestamps[-1])
 		for label,prob in classification_result.items():
-			print "%s:%f"%(label,prob)
+			print "{0}:{1:0.2f}%".format(label,prob*100)
+
 		print "--"*10
 		t1 = time.time()
 
