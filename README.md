@@ -55,7 +55,6 @@ python demo.py --video_path test.avi --composite_video
 	------------- | ------------- | -------------|
 	timestamps| deque（list） | group的一组帧对应的时间戳。 |
 	frames| deque（list） | 帧组。 |
-	
 2. 特征提取api:    
 `featureExtract.py`是特征提取api的主要脚本，它也利用了截帧api。目前支持的特征是SENet。运行demo：`python featureExtract.py`。    
 其中FeatureExtract类的对外接口包括初始化和特征提取两个部分。    
@@ -68,7 +67,6 @@ python demo.py --video_path test.avi --composite_video
 	modelFile（可选） | string | 模型的caffemodel路径，默认为'./models/SENet.caffemodel'。|
 	featureLayer（可选） | string | 进行特征提取的层，默认为'pool5/7x7_s1'。 |
 	gpu\_id（可选）| int | 使用gpu id，默认为0。|
-
 	```
 	注意:video中设置的frame_group_len需要和model/SENet.prototxt中的batchsize保持一致，否则会报错。
 	```
@@ -79,7 +77,6 @@ python demo.py --video_path test.avi --composite_video
 	timestamps| deque（list） | group的一组帧对应的时间戳。 |
 	frames| deque（list） | 帧组。 |
 	features | numpy array | 帧组的特征，维度为batchsize*featureDim。 |
-
 3. 特征融合和多帧分类api：    
 `featureCoding.py`是特征融合和多帧分类api的主要脚本，它也利用了截帧api和特征提取api。目前支持的特征融合方法是NetVLAD.运行demo：`python featureCoding.py`。    
 其中FeatureCoding类的对外接口包括初始化和特征融合分类两个部分。    
@@ -99,7 +96,7 @@ python demo.py --video_path test.avi --composite_video
 	------------- | ------------- | -------------|
 	feature_extraction（必须）  | class | FeatureExtract类的object。 |
 	topN（可选）  | int | 输出topN的分类结果，默认为5。 |
-	
+		
 	输出 | 类型 | 介绍 |
 	------------- | ------------- | -------------|
 	batch_timestamps| deque（list） | group的一组帧对应的时间戳。 |
@@ -126,8 +123,6 @@ python demo.py --video_path test.avi --composite_video
 	video_labels	|list	| 视频中动作类别。|
 	label_durations | list	|视频中动作的开始和结束时间，list中的每个item为[start,end]的list。|
 	label_probs|	list	|视频中动作的概率。|
-
-
 ## 技术方案
 ```
 输入：input video
