@@ -73,6 +73,12 @@ python featureExtract.py
 python featureCoding.py
 ```
 
+4. 后处理api：
+`postProcessing.py`是后处理api的主要脚本，它利用了截帧api，特征提取api，特征融合和多帧分类api，并最后将分类结果做一个整合，输出视频的多个分类标签，及其分别所处的开始时间和结束时间。运行：
+```
+python postProcessing.py
+```
+
 ## 技术方案
 ```
 输入：input video
