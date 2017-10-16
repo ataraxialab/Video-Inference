@@ -37,47 +37,55 @@ python demo.py --video_path test.avi --composite_video
 
 ## API Details
 1. 截帧api：      
-`video.py`是截帧api的主要脚本，运行：
-```
-python video.py
-```
-对video可设置的选项：
-  ```
-	start : float, optional
-			Begin iterating frames at time `start` (in seconds).
-			Defaults to 0.
-	end : float, optional
-			Stop iterating frames at time `end` (in seconds).
-			Defaults to video duration.
-	step : float, optional
-			Iterate frames every `step` seconds.
-			Defaults to iterating every frame.
-	verbose : bool, optional
-			Show a progress bar while iterating the video. Defaults to False.
-	frame_group_len : int
-			Number of frames to be grouped as an output. Defaults to 1.
-  ```
+`video.py`是截帧api的主要脚本，运行demo：`python video.py`。    
+其中Video类的参数设置如下：
+
+	参数名  | 类型 | 介绍 |
+	------------- | ------------- | -------------|
+	filename（必须）  | string | 待处理视频名称。 |
+	start（可选）  | float | 视频的开始截帧时间点（以秒计），默认从视频的第0秒开始截帧。 |
+	end（可选） | float | 视频的结束截帧时间点（以秒计），默认处理到视频的最后。|
+	step（可选） | float | 每step秒截帧一次，默认截取每一帧。 |
+	verbose（可选）| bool | 在处理视频时显示进度条，默认False。|
+	frame\_group\_len (可选)| int | frame\_group\_len帧图片组合成一个输出，相当于batchsize，默认为1。|
 
 2. 特征提取api:    
-`featureExtract.py`是特征提取api的主要脚本，它也利用了截帧api。目前支持的特征是SENet。运行：
-```
-python featureExtract.py
-```
-```
-注意:video中设置的frame_group_len需要和model/SENet.prototxt中的batchsize保持一致，否则会报错。
-```
+`featureExtract.py`是特征提取api的主要脚本，它也利用了截帧api。目前支持的特征是SENet。运行demo：`python featureExtract.py`。    
+其中FeatureExtract类的参数设置如下：
+
+	参数名  | 类型 | 介绍 |
+	------------- | ------------- | -------------|
+	video（必须）  | class | Video类的object。 |
+	modelPrototxt（可选）  | string | 用于特征提取的模型prototxt，默认为'./models/SENet.prototxt'。 |
+	modelFile（可选） | string | 模型的caffemodel路径，默认为'./models/SENet.caffemodel'。|
+	featureLayer（可选） | string | 进行特征提取的层，默认为'pool5/7x7_s1'。 |
+	gpu\_id（可选）| int | 使用gpu id，默认为0。|
+
+	```
+	注意:video中设置的frame_group_len需要和model/SENet.prototxt中的batchsize保持一致，否则会报错。
+	```
 
 3. 特征融合和多帧分类api：    
-`featureCoding.py`是特征融合和多帧分类api的主要脚本，它也利用了截帧api和特征提取api。目前支持的特征融合方法是NetVLAD.运行：
-```
-python featureCoding.py
-```
+`featureCoding.py`是特征融合和多帧分类api的主要脚本，它也利用了截帧api和特征提取api。目前支持的特征融合方法是NetVLAD.运行demo：`python featureCoding.py`。    
+其中FeatureCoding类的参数设置如下：
+
+	参数名  | 类型 | 介绍 |
+	------------- | ------------- | -------------|
+	featureDim（可选）  | int | 用于编码的特征维度，需小于输入特征的维度，默认为512维。 |
+	batchsize（可选）  | int | 特征编码的batchsize，默认为1。 |
+	modelPrefix（可选） | string | 用于特征编码的模型prefix，默认为'models/netvlad'。|
+	modelEpoch（可选） | int | 模型epoch，默认为0。 |
+	synset（可选）| string | 模型对应labels，默认为'lsvc\_class\_index.txt' |
+	gpu\_id（可选）| int | 使用gpu id，默认为0。|
 
 4. 后处理api：
-`postProcessing.py`是后处理api的主要脚本，它利用了截帧api，特征提取api，特征融合和多帧分类api，并最后将分类结果做一个整合，输出视频的多个分类标签，及其分别所处的开始时间和结束时间。运行：
-```
-python postProcessing.py
-```
+`postProcessing.py`是后处理api的主要脚本，它利用了截帧api，特征提取api，特征融合和多帧分类api，并最后将分类结果做一个整合，输出视频的多个分类标签，及其分别所处的开始时间和结束时间。运行demo：`python postProcessing.py`。    
+其中PostProcessing类的参数设置如下：
+
+	参数名  | 类型 | 介绍 |
+	------------- | ------------- | -------------|
+	score_thresh（必须）  | float | 输出类别的概率阈值，高于此阈值的分类结果可进行整合。 |
+
 
 ## 技术方案
 ```
