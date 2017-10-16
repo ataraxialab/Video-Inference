@@ -38,7 +38,8 @@ python demo.py --video_path test.avi --composite_video
 ## API Details
 1. 截帧api：      
 `video.py`是截帧api的主要脚本，运行demo：`python video.py`。    
-其中Video类的参数设置如下：
+其中Video类的对外接口包括初始化和截帧两个部分。   
+（1）初始化函数\_\_init\_\_()的参数设置如下：
 
 	参数名  | 类型 | 介绍 |
 	------------- | ------------- | -------------|
@@ -48,10 +49,17 @@ python demo.py --video_path test.avi --composite_video
 	step（可选） | float | 每step秒截帧一次，默认截取每一帧。 |
 	verbose（可选）| bool | 在处理视频时显示进度条，默认False。|
 	frame\_group\_len (可选)| int | frame\_group\_len帧图片组合成一个输出，相当于batchsize，默认为1。|
+（2）截帧需要调用\_\_iter\_\_()函数，此函数无输入参数。
 
+	输出 | 类型 | 介绍 |
+	------------- | ------------- | -------------|
+	timestamps| deque（list） | group的一组帧对应的时间戳。 |
+	frames| deque（list） | 帧组。 |
+	
 2. 特征提取api:    
 `featureExtract.py`是特征提取api的主要脚本，它也利用了截帧api。目前支持的特征是SENet。运行demo：`python featureExtract.py`。    
-其中FeatureExtract类的参数设置如下：
+其中FeatureExtract类的对外接口包括初始化和特征提取两个部分。    
+（1）初始化函数\_\_init\_\_()的参数设置如下：
 
 	参数名  | 类型 | 介绍 |
 	------------- | ------------- | -------------|
@@ -64,10 +72,18 @@ python demo.py --video_path test.avi --composite_video
 	```
 	注意:video中设置的frame_group_len需要和model/SENet.prototxt中的batchsize保持一致，否则会报错。
 	```
+（2）特征提取需要调用\_\_call\_\_()函数，此函数无输入参数。
+
+	输出 | 类型 | 介绍 |
+	------------- | ------------- | -------------|
+	timestamps| deque（list） | group的一组帧对应的时间戳。 |
+	frames| deque（list） | 帧组。 |
+	features | numpy array | 帧组的特征，维度为batchsize*featureDim。 |
 
 3. 特征融合和多帧分类api：    
 `featureCoding.py`是特征融合和多帧分类api的主要脚本，它也利用了截帧api和特征提取api。目前支持的特征融合方法是NetVLAD.运行demo：`python featureCoding.py`。    
-其中FeatureCoding类的参数设置如下：
+其中FeatureCoding类的对外接口包括初始化和特征融合分类两个部分。    
+（1）初始化函数\_\_init\_\_()的参数设置如下：
 
 	参数名  | 类型 | 介绍 |
 	------------- | ------------- | -------------|
@@ -77,14 +93,39 @@ python demo.py --video_path test.avi --composite_video
 	modelEpoch（可选） | int | 模型epoch，默认为0。 |
 	synset（可选）| string | 模型对应labels，默认为'lsvc\_class\_index.txt' |
 	gpu\_id（可选）| int | 使用gpu id，默认为0。|
+（2）特征融合+分类函数\_\_call\_\_()函数的参数设置如下：
+
+	参数名  | 类型 | 介绍 |
+	------------- | ------------- | -------------|
+	feature_extraction（必须）  | class | FeatureExtract类的object。 |
+	topN（可选）  | int | 输出topN的分类结果，默认为5。 |
+	
+	输出 | 类型 | 介绍 |
+	------------- | ------------- | -------------|
+	batch_timestamps| deque（list） | group的一组帧对应的时间戳。 |
+	batch_frames| deque（list） | 帧组。 |
+	topN_result | dict | topN的分类结果，key为类别名，value为类别概率。 |
 
 4. 后处理api：
 `postProcessing.py`是后处理api的主要脚本，它利用了截帧api，特征提取api，特征融合和多帧分类api，并最后将分类结果做一个整合，输出视频的多个分类标签，及其分别所处的开始时间和结束时间。运行demo：`python postProcessing.py`。    
-其中PostProcessing类的参数设置如下：
+其中PostProcessing类的对外接口包括初始化和后处理两个部分。   
+（1）初始化函数\_\_init\_\_()的参数设置如下：
 
 	参数名  | 类型 | 介绍 |
 	------------- | ------------- | -------------|
 	score_thresh（必须）  | float | 输出类别的概率阈值，高于此阈值的分类结果可进行整合。 |
+（2）后处理函数\_\_call\_\_()函数的参数设置如下：
+
+	参数名  | 类型 | 介绍 |
+	------------- | ------------- | -------------|
+	feature_coding（必须）| class | FeatureCoding类的object。|
+	feature_extraction（必须）  | class | FeatureExtract类的object。 |
+	
+	输出 | 类型 | 介绍 |
+	------------- | ------------- | -------------|
+	video_labels	|list	| 视频中动作类别。|
+	label_durations | list	|视频中动作的开始和结束时间，list中的每个item为[start,end]的list。|
+	label_probs|	list	|视频中动作的概率。|
 
 
 ## 技术方案
