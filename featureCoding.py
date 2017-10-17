@@ -18,7 +18,7 @@ class FeatureCoding(object):
 	gpu_id: which gpu to use
 	"""
 
-	def __init__(self, featureDim=512, batchsize=1, modelPrefix='models/netvlad', modelEpoch=0, synset='lsvc_class_index.txt', gpu_id=0):
+	def __init__(self, featureDim, batchsize, modelPrefix, modelEpoch, synset, gpu_id=0):
 		self.batchsize = batchsize
 		ctx = mx.gpu(gpu_id)
 		sym, arg_params, aux_params = mx.model.load_checkpoint(modelPrefix, modelEpoch)
@@ -32,8 +32,8 @@ class FeatureCoding(object):
 			labels = [l.strip().split('\t')[-1] for l in f]
 		self.labels = labels
 
-	def __call__(self, feature_extraction, topN = 5):
-		for batch_timestamps, batch_frames, extracted_batch_feature in feature_extraction():
+	def __call__(self, feature_extraction, video, topN = 5):
+		for batch_timestamps, batch_frames, extracted_batch_feature in feature_extraction(video):
 			feature = extracted_batch_feature.reshape(1,self.batchsize,-1)
 			if feature.shape[-1] != self.featureDim:
 				feature = self._cut_feature(feature)
@@ -67,17 +67,20 @@ class FeatureCoding(object):
 
 if __name__ == '__main__':
 	from video import Video
+	from config import config
 	import time
 
 	filename = "test.avi"
 	frame_group = 5
 	video = Video(filename, step=1, frame_group_len=frame_group)
-	feature_extract = FeatureExtraction(video, modelPrototxt='./models/SENet.prototxt', modelFile='./models/SENet.caffemodel',
-	                             featureLayer='pool5/7x7_s1', gpu_id=0)
-	featurecoding = FeatureCoding(featureDim=512, batchsize=frame_group, modelPrefix='models/netvlad', modelEpoch=50, synset='lsvc_class_index.txt', gpu_id=0)
+	feature_extract = FeatureExtraction(modelPrototxt=config.FEATURE_EXTRACTION.MODEL_PROTOTXT,
+	                                    modelFile=config.FEATURE_EXTRACTION.MODEL_FILE,
+	                                    featureLayer=config.FEATURE_EXTRACTION.FEATURE_LAYER, gpu_id=0)
+	featurecoding = FeatureCoding(featureDim=config.FEATURE_CODING.FEATURE_DIM, batchsize=frame_group, modelPrefix=config.FEATURE_CODING.MODEL_PREFIX,
+	                               modelEpoch=config.FEATURE_CODING.MODEL_EPOCH, synset=config.FEATURE_CODING.SYNSET, gpu_id=0)
 
 	t1 = time.time()
-	for timestamps, _, classification_result in featurecoding(feature_extract, topN=5):
+	for timestamps, _, classification_result in featurecoding(feature_extract, video, topN=5):
 		t2 = time.time()
 		print "time cost: %f, results in timeduration:(%f~%f)s\n"%(t2-t1,timestamps[0],timestamps[-1])
 		for label,prob in classification_result.items():
