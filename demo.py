@@ -4,6 +4,7 @@ from featureExtract import FeatureExtraction
 from featureCoding import FeatureCoding
 from postProcessing import PostProcessing
 from videoInfer import VideoInfer
+from config import config
 
 
 def parse_args():
@@ -21,11 +22,11 @@ def parse_args():
 	return args
 
 def init(args):
-	feature_extract = FeatureExtraction(modelPrototxt='./models/SENet.prototxt',
-	                                    modelFile='./models/SENet.caffemodel',
-	                                    featureLayer='pool5/7x7_s1', gpu_id=args.gpu_id)
-	feature_coding = FeatureCoding(featureDim=512, batchsize=args.frame_group, modelPrefix='models/netvlad',
-	                               modelEpoch=50, synset='lsvc_class_index.txt', gpu_id=args.gpu_id)
+	feature_extract = FeatureExtraction(modelPrototxt=config.FEATURE_EXTRACTION.MODEL_PROTOTXT,
+	                                    modelFile=config.FEATURE_EXTRACTION.MODEL_FILE,
+	                                    featureLayer=config.FEATURE_EXTRACTION.FEATURE_LAYER, gpu_id=args.gpu_id)
+	feature_coding = FeatureCoding(featureDim=config.FEATURE_CODING.FEATURE_DIM, batchsize=args.frame_group, modelPrefix=config.FEATURE_CODING.MODEL_PREFIX,
+	                               modelEpoch=config.FEATURE_CODING.MODEL_EPOCH, synset=config.FEATURE_CODING.SYNSET, gpu_id=args.gpu_id)
 	post_processing = PostProcessing(score_thresh=args.display_score_thresh)
 	video_infer = VideoInfer(feature_extract, feature_coding, post_processing)
 

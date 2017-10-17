@@ -3,7 +3,6 @@ import caffe
 from video import Video
 from utils import center_crop_images
 import skimage
-import warnings
 
 
 class FeatureExtraction(object):
@@ -19,8 +18,7 @@ class FeatureExtraction(object):
     gpu_id: which gpu to use
     """
 
-    def __init__(self, modelPrototxt='./models/SENet.prototxt', modelFile='./models/SENet.caffemodel',
-                 featureLayer='pool5/7x7_s1', gpu_id=0):
+    def __init__(self, modelPrototxt, modelFile, featureLayer, gpu_id=0):
         caffe.set_mode_gpu()
         caffe.set_device(gpu_id)
 
@@ -74,10 +72,13 @@ class FeatureExtraction(object):
 
 
 if __name__ == "__main__":
+    from config import config
+
     filename = "test.avi"
     video = Video(filename, frame_group_len=1)
-    features = FeatureExtraction(modelPrototxt='./models/SENet.prototxt', modelFile='./models/SENet.caffemodel',
-                 featureLayer='pool5/7x7_s1', gpu_id=0)
+    features = FeatureExtraction(modelPrototxt=config.FEATURE_EXTRACTION.MODEL_PROTOTXT,
+	                            modelFile=config.FEATURE_EXTRACTION.MODEL_FILE,
+	                            featureLayer=config.FEATURE_EXTRACTION.FEATURE_LAYER, gpu_id=0)
     for timestamps, frames, fea in features(video):
         print fea.shape
         print fea
