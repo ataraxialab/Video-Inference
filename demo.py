@@ -40,4 +40,5 @@ if __name__ == '__main__':
 	video = Video(args.video_path, step=args.step, frame_group_len=args.frame_group)
 
 	video_labels, label_duration, label_prob = video_infer_handler.infer(video)
-	video_infer_handler.composite_video(video, args.composite_video_name, args.display_score_thresh)
+	demo_video = video_infer_handler.composite_video(video, args.composite_video_name, args.display_score_thresh)
+	print demo_video + " is generated."

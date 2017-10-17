@@ -40,6 +40,6 @@ class VideoInfer(object):
 			t1 = time.time()
 			newvideo._add_frame(batch_frames, texts)
 
-		print "generating new video ..."
 		newvideo._composite_video()
-		print composite_video_name + " is generated."
+
+		return composite_video_name

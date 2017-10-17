@@ -32,7 +32,7 @@ apt-get install cython python-skimage python-pip
 下载一个测试视频（test.avi），下载senet模型和netvlad模型放到models/目录下（链接问我要）。    
 然后运行如下代码，可生成视频分类结果的视频：
 ```
-python demo.py --video_path test.avi --composite_video
+python demo.py --video_path test.avi
 ```
 
 ## API Details
@@ -46,10 +46,10 @@ demo_video = composite_video(video)
 
 |参数名|类型|介绍|
 |---|---|---|
-| FeatureExtraction |类|用于视频帧特征提取|
-| FeatureCoding |类|用于视频帧编码|
-| PostProcessing |类|用于视频处理结果的融合|
-| video |类|用于视频文件的抽象|
+| FeatureExtraction | class |用于视频帧特征提取|
+| FeatureCoding | class |用于视频帧编码|
+| PostProcessing | class |用于视频处理结果的融合|
+| video | class |用于视频文件的抽象|
 | label_durations |list| 视频中动作的开始和结束时间，offset |
 | video_labels |list| 视频中动作类别 |
 | label_probs |list| 视频中动作的概率 |
@@ -102,11 +102,14 @@ __init__(modelPrototxt, modelFile，featureLayer，gpu_id)
 	modelFile（可选） | string | 模型的caffemodel路径，默认为'./models/SENet.caffemodel'。|
 	featureLayer（可选） | string | 进行特征提取的层，默认为'pool5/7x7_s1'。 |
 	gpu\_id（可选）| int | 使用gpu id，默认为0。|
-2. 特征提取需要调用\_\_call\_\_()函数，此函数无输入参数。
+2. 特征提取需要调用\_\_call\_\_()函数：
 
-	输出 | 类型 | 介绍 |
+	参数名 | 类型 | 介绍 |
 	------------- | ------------- | -------------|
 	video（必须）  | class | Video类的object。 |
+	
+	输出 | 类型 | 介绍 |
+	------------- | ------------- | -------------|
 	timestamps| deque（list） | group的一组帧对应的时间戳。 |
 	frames| deque（list） | 帧组。 |
 	features | numpy array | 帧组的特征，维度为batchsize*featureDim。 |
@@ -129,13 +132,13 @@ __init__(featureDim, batchsize, modelPrefix，modelEpoch，gpu_id)
 	modelPrefix（可选） | string | 用于特征编码的模型prefix，默认为'models/netvlad'|
 	modelEpoch（可选） | int | 模型epoch，默认为0|
 	synset（可选）| string | 模型对应labels，默认为'lsvc\_class\_index.txt'|
-	gpu\_id（可选）| int | 使用gpu id，默认为0|
-	
+	gpu\_id（可选）| int | 使用gpu id，默认为0|	
 2. 特征融合+分类函数\_\_call\_\_()函数的参数设置如下：
 
 	参数名  | 类型 | 介绍 |
 	------------- | ------------- | -------------|
 	feature_extraction（必须）  | class | FeatureExtract类的object。 |
+	video（必须）  | class | Video类的object。 |
 	topN（可选）  | int | 输出topN的分类结果，默认为5。 |
 			
 	输出 | 类型 | 介绍 |
@@ -143,9 +146,9 @@ __init__(featureDim, batchsize, modelPrefix，modelEpoch，gpu_id)
 	batch_timestamps| deque（list） | group的一组帧对应的时间戳。 |
 	batch_frames| deque（list） | 帧组。 |
 	topN_result | dict | topN的分类结果，key为类别名，value为类别概率。 |
-
+	
 ### 后处理api：
-`postProcessing.py`是后处理api的主要脚本，它利用了FeatureCoding api的结果，做一个整合，输出视频的最终输出：包括时间段（开始时间和结束时间），分类标签和置信度。运行demo：`python postProcessing.py`。    
+`postProcessing.py`是后处理api的主要脚本，它利用了FeatureCoding api的结果，做一个整合，输出视频的最终输出：包括时间段（开始时间和结束时间），分类标签和置信度。    
 ```
 class PostProcessing
 __init__(score_thresh)
@@ -163,8 +166,8 @@ __init__(score_thresh)
 
 	参数名  | 类型 | 介绍 |
 	------------- | ------------- | -------------|
-	batch_timestamps（必须）| list | 单次视频的时间戳|
-	batch_classification_result（必须）  | list | 单次视频分类的结果|
+	batch\_timestamps（必须）| list | 单次视频的时间戳|
+	batch\_classification\_result（必须）  | list | 单次视频分类的结果|
 		
 	输出 | 类型 | 介绍 |
 	------------- | ------------- | -------------|
