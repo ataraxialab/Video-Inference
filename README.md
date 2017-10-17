@@ -85,7 +85,7 @@ __init__(filename, start, end，step，verbose，frame_group_len)
       frames| deque（list） | 帧组|
 		
 ### 特征提取api:    
-`featureExtract.py`是特征提取api的主要脚本，它也利用了截帧api。目前支持的特征是SENet。运行demo：`python featureExtract.py`。    #
+`featureExtract.py`是特征提取api的主要脚本，它也利用了截帧api。目前支持的特征是SENet。运行demo：`python featureExtract.py`。
 
 ```
 class FeatureExtract
@@ -145,7 +145,7 @@ __init__(featureDim, batchsize, modelPrefix，modelEpoch，gpu_id)
 	topN_result | dict | topN的分类结果，key为类别名，value为类别概率。 |
 
 ### 后处理api：
-`postProcessing.py`是后处理api的主要脚本，它利用了截帧api，特征提取api，特征融合和多帧分类api，并最后将分类结果做一个整合，输出视频的多个分类标签，及其分别所处的开始时间和结束时间。运行demo：`python postProcessing.py`。    
+`postProcessing.py`是后处理api的主要脚本，它利用了FeatureCoding api的结果，做一个整合，输出视频的最终输出：包括时间段（开始时间和结束时间），分类标签和置信度。运行demo：`python postProcessing.py`。    
 ```
 class PostProcessing
 __init__(score_thresh)
