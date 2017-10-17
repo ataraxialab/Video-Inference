@@ -17,7 +17,6 @@ def parse_args():
 	parser.add_argument('--composite_video_name', help='new video name', default='newvideo.mp4', type=str)
 	parser.add_argument('--display_score_thresh', help='label prob higher than the thresh can be displayed', default=0.1, type=float)
 
-
 	args = parser.parse_args()
 	return args
 
@@ -41,4 +40,4 @@ if __name__ == '__main__':
 	video = Video(args.video_path, step=args.step, frame_group_len=args.frame_group)
 
 	video_labels, label_duration, label_prob = video_infer_handler.infer(video)
-	video_infer_handler.composite_video(video, args.composite_video_name)
+	video_infer_handler.composite_video(video, args.composite_video_name, args.display_score_thresh)

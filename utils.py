@@ -79,7 +79,7 @@ class Composite_Video(object):
         for frame in frames:
             bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             img_with_text = self._draw_text(bgr, text_list)
-            cv2.imwrite(self._img_prefix.format(self._img_idx), img_with_text)
+            cv2.imwrite(self._img_prefix%(self._img_idx), img_with_text)
             self._img_idx += 1
 
     def _composite_video(self, del_frames = True):

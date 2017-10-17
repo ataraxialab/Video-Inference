@@ -11,7 +11,7 @@ class VideoInfer(object):
 		video_timestamps = []
 		video_classification_result = []
 		t1 = time.time()
-		for batch_timestamps, _, batch_classification_result in self.feature_coding(self.feature_extraction(video), topN=1):
+		for batch_timestamps, _, batch_classification_result in self.feature_coding(self.feature_extraction, video, topN=1):
 			t2 = time.time()
 			print "time cost: %f, results in timeduration:(%f~%f)s\n" % (t2 - t1, batch_timestamps[0], batch_timestamps[-1])
 			for label, prob in batch_classification_result.items():
@@ -27,7 +27,7 @@ class VideoInfer(object):
 	def composite_video(self, video, composite_video_name, display_score_thresh):
 		newvideo = Composite_Video(videoname=composite_video_name, fps=1. / video.step, framesize=video._size)
 		t1 = time.time()
-		for batch_timestamps, batch_frames, batch_classification_result in self.feature_coding(self.feature_extraction(video), topN=5):
+		for batch_timestamps, batch_frames, batch_classification_result in self.feature_coding(self.feature_extraction, video, topN=5):
 			t2 = time.time()
 			print "time cost: %f, results in timeduration:(%f~%f)s\n" % (t2 - t1, batch_timestamps[0], batch_timestamps[-1])
 			texts = []
