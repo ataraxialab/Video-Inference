@@ -39,6 +39,8 @@ if __name__ == '__main__':
 	video_infer_handler = init(args)
 	video = Video(args.video_path, step=args.step, frame_group_len=args.frame_group)
 
-	video_labels, label_duration, label_prob = video_infer_handler.infer(video)
-	demo_video = video_infer_handler.composite_video(video, args.composite_video_name, args.display_score_thresh)
-	print demo_video + " is generated."
+	if args.composite_video:
+		demo_video = video_infer_handler.composite_video(video, args.composite_video_name, args.display_score_thresh)
+		print demo_video + " is generated."
+	else:
+		video_labels, label_duration, label_prob = video_infer_handler.infer(video)

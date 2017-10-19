@@ -15,7 +15,7 @@ python demo.py --composite_video
   pip install  tqdm
 apt-get install --no-install-recommends libboost-all-dev
 pip install protobuf
-apt-get install cython python-skimage python-pip
+apt-get install cython python-skimage python-pip libgflags-dev libgoogle-glog-dev liblmdb-dev
   ```
 
 3.下载senet版caffe（链接问我要）,	并编译：
@@ -27,9 +27,14 @@ apt-get install cython python-skimage python-pip
   make all
   make install
   ```
+  
+  在$PYTHONPATH中加入caffe的环境变量：
+  ```
+  export  PYTHONPATH="$PYTHONPATH:$CAFFE_ROOT/python/"
+  ```
 
 4. 开始使用:    
-下载一个测试视频（test.avi），下载senet模型和netvlad模型放到models/目录下（链接问我要）。    
+下载一个测试视频（test.avi），下载senet模型和netvlad模型放到models/目录下（链接问我要）,下载视频类别列表文件。
 然后运行如下代码，可生成视频分类结果的视频：
 ```
 python demo.py --video_path test.avi
